@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import DoctorCard from "./DoctorCard"; // Import the DoctorCard component
+import DoctorCard from "./DoctorCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 const PatientDashboard = () => {
   const [doctors, setDoctors] = useState([]);
+  const [totalAppointments, setTotalAppointments] = useState(0); // State to hold total appointments
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch the list of doctors from the server
     const fetchDoctors = async () => {
       try {
         const response = await axios.get("http://localhost:8080/doctor/all");
@@ -20,34 +22,59 @@ const PatientDashboard = () => {
       }
     };
 
+    const fetchTotalAppointments = async () => {
+      const patientId = localStorage.getItem("userId");
+      try {
+        if (patientId) {
+          const response = await axios.get(
+            `http://localhost:8080/appointment/patient/${patientId}`
+          );
+
+          const data = response.data;
+          setTotalAppointments(data.appointment.length);
+        }
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      }
+    };
+
     fetchDoctors();
+    fetchTotalAppointments();
   }, []);
 
   return (
-    <div className="container mx-auto max-w-screen-xl p-8">
-      <h2 className="text-3xl text-center font-semibold text-indigo-700 mb-6">
-        Doctor Directory
-      </h2>
-      <div className="fixed top-18 right-8 flex items-center space-x-2">
-        <button
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 transform hover:scale-105 transition-transform duration-300 ease-in-out"
-          onClick={() => {
-            // Handle the "Add Appointment" button click event here
-            // You can open a modal or navigate to another page for appointment booking
-            // Example: history.push("/book-appointment");
-          }}
-        >
-          <FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
-          Add Appointment
-        </button>
+    <>
+      <header className="bg-blue-600 text-white py-4 fixed top-0 w-full z-10">
+        <div className="container mx-auto text-center">
+          <h1 className="text-3xl font-semibold">Doctor Directory</h1>
+        </div>
+      </header>
+
+      <div className="container mx-auto max-w-screen-xl p-8 mt-12">
+        <div className="mt-18 text-right flex items-center justify-end space-x-2 relative">
+          {/* Round button with total appointments */}
+          <button
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 transform hover:scale-105 transition-transform duration-300 ease-in-out"
+            onClick={() => {
+              navigate("/myappointment");
+            }}
+          >
+            <FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
+            My Appointment
+            {totalAppointments > 0 && (
+              <div className="absolute top-0 right-0  text-indigo-700 rounded-full w-6 h-6 flex items-center justify-center -mt-2 -mr-2 p-3 text-sm border-2 z-10 bg-white border-indigo-700">
+                {totalAppointments}
+              </div>
+            )}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {doctors.map((doctor) => (
+            <DoctorCard key={doctor._id} doctor={doctor} />
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
-        {doctors.map((doctor) => (
-          <DoctorCard key={doctor._id} doctor={doctor} />
-        ))}
-      </div>
-      
-    </div>
+    </>
   );
 };
 

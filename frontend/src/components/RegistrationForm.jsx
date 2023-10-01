@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const RegistrationForm = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const [role, setRole] = useState("patient");
   const [formData, setFormData] = useState({
     firstName: "",
@@ -40,69 +40,62 @@ const RegistrationForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Make an API request to register the user based on the selected role
       const response = await axios.post(
-        role === "doctor" ? "http://localhost:8080/doctor/register" : "http://localhost:8080/patient/register",
+        role === "doctor"
+          ? "http://localhost:8080/doctor/register"
+          : "http://localhost:8080/patient/register",
         formData
       );
-      console.log("formData",response)
-      // Check if the registration was successful
+      console.log("formData", response);
       if (response.data.status) {
-        // Display a success toast
         toast.success("Registration successful!");
-  
-        // Redirect to the login page
-        navigate("/login"); // Replace '/login' with the actual login route
+        navigate("/login");
       } else {
-        // Display an error toast if registration failed
         toast.error("Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Error registering user:", error);
-      // Display an error toast if there was an API error
-      toast.error("An error occurred while registering. Please try again later.");
+      toast.error(
+        "An error occurred while registering. Please try again later."
+      );
     }
   };
-  
 
   return (
-    <div className="bg-gray-100 py-10">
-      <div className="container mx-auto max-w-screen-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-3xl font-semibold text-center text-indigo-700 mb-6">
+    <div className="bg-[url(https://healthworldnet.com/imagesHealthCloudBusinessofHealthHospitalsClinicshospital_800.jpg)] bg-cover py-10 ">
+      <div className="bg-opacity-10 backdrop-blur-xl container mx-auto max-w-screen-md p-8  rounded-lg shadow-md border">
+        <h2 className="text-3xl font-extrabold text-center text-indigo-700 mb-6">
           Registration
         </h2>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Role
-          </label>
           <div className="flex items-center space-x-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Role
-          </label>
-          <div className="flex items-center">
-            <label className="mr-4">
-              <input
-                type="radio"
-                name="role"
-                value="patient"
-                checked={role === 'patient'}
-                onChange={handleRoleChange}
-                className="mr-2 leading-tight text-indigo-600"
-              />
-              Patient
+            <label className="block text-indigo-700 text-sm font-extrabold mb-2">
+              Role
             </label>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="doctor"
-                checked={role === 'doctor'}
-                onChange={handleRoleChange}
-                className="mr-2 leading-tight text-indigo-600"
-              />
-              Doctor
-            </label>
-          </div>
+            <div className="flex items-center -mt-2 text-indigo-600 font-extrabold">
+              <label className="mr-4">
+                <input
+                  type="radio"
+                  name="role"
+                  value="patient"
+                  checked={role === "patient"}
+                  onChange={handleRoleChange}
+                  className="mr-2 leading-tight text-indigo-600"
+                />
+                Patient
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="role"
+                  value="doctor"
+                  checked={role === "doctor"}
+                  onChange={handleRoleChange}
+                  className="mr-2 leading-tight text-indigo-600"
+                />
+                Doctor
+              </label>
+            </div>
           </div>
         </div>
         <form
@@ -145,7 +138,7 @@ const RegistrationForm = () => {
               }
             ].map((field) => (
               <div key={field.name} className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+                <label className="block text-indigo-700 text-sm font-extrabold mb-2">
                   {field.label}
                 </label>
                 <input
@@ -153,7 +146,7 @@ const RegistrationForm = () => {
                   name={field.name}
                   value={formData[field.name]}
                   onChange={handleInputChange}
-                  className="w-full border-b-2 border-indigo-600 rounded-lg py-2 px-3 focus:outline-none focus:border-indigo-700 text-gray-700 placeholder-gray-400"
+                  className="w-full border-b-4 border-indigo-600 rounded-lg py-2 px-3 focus:outline-none focus:border-indigo-700 text-gray-700 placeholder-gray-400"
                   placeholder={`Enter ${field.label}`}
                   required
                 />
@@ -187,10 +180,10 @@ const RegistrationForm = () => {
                 type: "text"
               },
               { label: "Contact Number", name: "contactNumber", type: "tel" },
-              { label: "Working Hours", name: "workingHours", type: "text" },
+              { label: "Working Hours", name: "workingHours", type: "text" }
             ].map((field) => (
               <div key={field.name} className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+                <label className="block text-indigo-700 text-sm font-extrabold mb-2">
                   {field.label}
                 </label>
                 <input
@@ -198,7 +191,7 @@ const RegistrationForm = () => {
                   name={field.name}
                   value={formData[field.name]}
                   onChange={handleInputChange}
-                  className="w-full border-b-2 border-indigo-600 rounded-lg py-2 px-3 focus:outline-none focus:border-indigo-700 text-gray-700 placeholder-gray-400"
+                  className="w-full border-b-4 border-indigo-600 rounded-lg py-2 px-3 focus:outline-none focus:border-indigo-700 text-gray-700 placeholder-gray-400"
                   placeholder={`Enter ${field.label}`}
                   required
                 />
@@ -206,14 +199,14 @@ const RegistrationForm = () => {
             ))}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label className="block text-indigo-700 text-sm font-extrabold mb-2">
               About
             </label>
             <textarea
               name="about"
               value={formData.about}
               onChange={handleInputChange}
-              className="w-full border-b-2 border-indigo-600 rounded-lg py-2 px-3 focus:outline-none focus:border-indigo-700 text-gray-700 placeholder-gray-400"
+              className="w-full border-b-4 border-indigo-600 rounded-lg py-2 px-3 focus:outline-none focus:border-indigo-700 text-gray-700 placeholder-gray-400"
               placeholder="Tell us about yourself"
               rows="4"
             ></textarea>
@@ -228,7 +221,7 @@ const RegistrationForm = () => {
           </div>
         </form>
       </div>
-      <ToastContainer /> {/* Toast container for displaying notifications */}
+      <ToastContainer />
     </div>
   );
 };

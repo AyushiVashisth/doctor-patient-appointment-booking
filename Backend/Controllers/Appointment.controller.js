@@ -38,19 +38,19 @@ const createAppointment = async (req, res) => {
 };
 
 // Read a single appointment by ID
-const getAppointmentById = async (req, res) => {
+const getDoctorAppointmentById = async (req, res) => {
     try {
-        const appointmentId = req.params.appointmentId;
+        const doctorId = req.params.doctorId;
 
         // Find the appointment by ID
         const appointment = await AppointmentModel
-            .find({ doctor: appointmentId })
+            .find({ doctor: doctorId })
             .populate('doctor') // Populate the 'doctor' field with the associated doctor
             .populate('patient')
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found' });
         }
-
+console.log("Appointment", appointment)
         // Send a success response with the appointment data
         res.status(200).json({ appointment });
     } catch (error) {
@@ -62,11 +62,11 @@ const getAppointmentById = async (req, res) => {
 
 const getPatientAppointmentById = async (req, res) => {
     try {
-        const appointmentId = req.params.appointmentId;
+        const patientId = req.params.patientId;
 
         // Find the appointment by ID
         const appointment = await AppointmentModel
-            .find({ doctopatient: appointmentId })
+            .find({ patient: patientId })
             .populate('doctor') // Populate the 'doctor' field with the associated doctor
             .populate('patient')
         if (!appointment) {
@@ -145,7 +145,7 @@ const deleteAppointmentById = async (req, res) => {
 
 module.exports = {
     createAppointment,
-    getAppointmentById,
+    getDoctorAppointmentById,
     updateAppointmentById,
     deleteAppointmentById,
     getPatientAppointmentById

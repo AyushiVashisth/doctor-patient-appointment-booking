@@ -1,27 +1,29 @@
-const express = require('express');
+const express = require("express");
 const AppointmentRouter = express.Router();
 const {
-    createAppointment,
-    getAppointmentById,
-    updateAppointmentById,
-    deleteAppointmentById,
-    getPatientAppointmentById,
-} = require('../Controllers/Appointment.controller');
-const Auth = require('../Middlewares/JWT.authentication');
+  createAppointment,
+  updateAppointmentById,
+  deleteAppointmentById,
+  getPatientAppointmentById,
+  getDoctorAppointmentById
+} = require("../Controllers/Appointment.controller");
+const Auth = require("../Middlewares/JWT.authentication");
 
 // Create a new appointment
-AppointmentRouter.post('/',Auth, createAppointment);
+AppointmentRouter.post("/", createAppointment);
 
 // Get a single appointment by ID
-AppointmentRouter.get('/:appointmentId',Auth, getAppointmentById);
+AppointmentRouter.get("/doctor/:doctorId", getDoctorAppointmentById);
 
-
-AppointmentRouter.get('/patient/:appointmentId',Auth, getPatientAppointmentById);
+AppointmentRouter.get("/patient/:patientId", getPatientAppointmentById);
 
 // Update an appointment by ID
-AppointmentRouter.patch('/:appointmentId',Auth, updateAppointmentById);
+// AppointmentRouter.patch("/:appointmentId", Auth, updateAppointmentById);   //table -patient
+AppointmentRouter.patch("/:appointmentId", updateAppointmentById);   //table -patient
 
 // Delete an appointment by ID
-AppointmentRouter.delete('/:appointmentId',Auth, deleteAppointmentById);
+// AppointmentRouter.delete("/:appointmentId", Auth, deleteAppointmentById);
+AppointmentRouter.delete("/:appointmentId", deleteAppointmentById);
+
 
 module.exports = AppointmentRouter;

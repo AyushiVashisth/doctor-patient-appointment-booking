@@ -56,10 +56,10 @@ const login = async (req, res) => {
         if (!passwordMatch) {
             return res.status(400).json({ message: 'Incorrect password!', status: false });
         }
-        var token = jwt.sign({ userID: doctor._id }, `${process.env.secretKey}`);
+        var token = jwt.sign({ userId: doctor._id }, `${process.env.secretKey}`);
       
         // If email and password are correct, send a success response
-        res.status(200).json({ message: 'Login successfull!',token,doctor, status: true });
+        res.status(200).json({ message: 'Login successfull!',token,userId: doctor._id, status: true });
     } catch (error) {
         // Handle errors and send an error response
         console.error(error);
@@ -119,9 +119,19 @@ const updateDoctor = async (req, res) => {
 
 const findDoctor=async(req,res)=>{
     try {
-    
-        const doctor=await DoctorModel.find({email:req.body.email}).populate("appointments")
-        res.status(200).json({doctor})
+        const doctorId = req.params.doctorId;
+
+        // Find the patient by ID
+        const doctor = await DoctorModel.findById(doctorId).populate('appointments');
+
+        if (!doctor) {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+
+        // Send a success response with the patient data
+        res.status(200).json({doctor});
+        // const doctor=await DoctorModel.find({email:req.body.email}).populate("appointments")
+        // res.status(200).json({doctor})
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -133,7 +143,7 @@ const getAllDoctors = async (req, res) => {
         // Implement logic to retrieve all doctors' data here
         // Example: Retrieve all doctors from the database
         const doctors = await DoctorModel.find();
-        console.log(doctors)
+        // console.log(doctors)
         // Send a success response with the list of doctors
         res.status(200).json({ doctors: doctors });
     } catch (error) {
@@ -162,7 +172,6 @@ const updateAppointment = async (req, res) => {
             { _id: doctorId },
             { $push: { appointments: appointmentId } }
         );
-
         // Send a success response
         res.status(200).json({ message: 'Appointment updated successfully' });
     } catch (error) {

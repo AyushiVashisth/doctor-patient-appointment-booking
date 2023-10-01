@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUserMd,
-  faMapMarkerAlt,
   faPhone,
-  faClock,
-  faStethoscope,
-  faInfoCircle,
   faUserPlus,
-  faEdit,
-  faTimes,
-  faSave,
+  faEnvelope,
+  faVenusMars,
+  faCalendar,
+  faTint,
   faUser,
+  faEdit,
+  faSave,
+  faTimes,
+  faTrash,
+  faClock,
   faCheckCircle,
   faBan,
   faPencilAlt
@@ -19,6 +20,7 @@ import {
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import EditAppointmentModal from "./EditAppointmentModal";
 
 const statusColors = {
   scheduled: "text-blue-500 ",
@@ -26,41 +28,49 @@ const statusColors = {
   canceled: "text-red-500 "
 };
 
-const DoctorDashboard = () => {
-  const [doctor, setDoctor] = useState(null);
+const MyAppointment = () => {
+  const [patient, setPatient] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [editingField, setEditingField] = useState(null);
   const [editedValue, setEditedValue] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editAppointmentData, setEditAppointmentData] = useState(null);
   const [editedStatus, setEditedStatus] = useState({});
 
-console.log("appointments",appointments)
   useEffect(() => {
-    const doctorId = localStorage.getItem("userId");
-    if (doctorId) {
-      fetch(`http://localhost:8080/appointment/doctor/${doctorId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("response", data.appointment[0].doctor);
-          setDoctor(data.appointment[0].doctor);
+    const patientId = localStorage.getItem("userId");
+
+    const fetchPatientData = async () => {
+      try {
+        if (patientId) {
+          const response = await axios.get(
+            `http://localhost:8080/appointment/patient/${patientId}`
+          );
+
+          const data = response.data;
+          setPatient(data.appointment[0].patient);
           setAppointments(data.appointment);
-        })
-        .catch((error) => console.error("Error fetching doctor data:", error));
-    }
+        }
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      }
+    };
+
+    fetchPatientData();
   }, []);
 
-  const updateDoctorDetail = async (field, value) => {
-    console.log("Doctorid", doctor._id);
+  const updatePatientDetail = async (field, value) => {
     try {
       const response = await axios.patch(
-        `http://localhost:8080/doctor/${doctor._id}`,
+        `http://localhost:8080/patient/${patient._id}`,
         {
           [field]: value
         }
       );
 
       if (response.status === 200) {
-        const updatedDoctor = { ...doctor, [field]: value };
-        setDoctor(updatedDoctor);
+        const updatedPatient = { ...patient, [field]: value };
+        setPatient(updatedPatient);
         setEditingField(null);
         toast.success(`Successfully updated ${field}`);
       } else {
@@ -69,6 +79,62 @@ console.log("appointments",appointments)
     } catch (error) {
       console.error("Error updating patient detail:", error);
       toast.error(`Error updating ${field}`);
+    }
+  };
+
+  
+  const openEditModal = (appointment) => {
+    setEditAppointmentData(appointment);
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+  };
+
+  const updateAppointmentData = async (updatedData) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:8080/appointment/${editAppointmentData._id}`,
+        updatedData
+      );
+
+      if (response.status === 200) {
+        const updatedAppointments = appointments.map((appointment) =>
+          appointment._id === editAppointmentData._id
+            ? { ...appointment, ...updatedData }
+            : appointment
+        );
+        setAppointments(updatedAppointments);
+        setEditModalOpen(false);
+        toast.success("Appointment updated successfully");
+      } else {
+        console.error("Failed to update appointment");
+      }
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      toast.error("Error updating appointment");
+    }
+  };
+
+  const deleteAppointment = async (appointmentId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/appointment/${appointmentId}`
+      );
+
+      if (response.status === 200) {
+        const updatedAppointments = appointments.filter(
+          (appointment) => appointment._id !== appointmentId
+        );
+        setAppointments(updatedAppointments);
+        toast.success("Appointment deleted successfully");
+      } else {
+        console.error("Failed to delete appointment");
+      }
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast.error("Error deleting appointment");
     }
   };
 
@@ -113,15 +179,33 @@ console.log("appointments",appointments)
     }
   };
 
+  function formatTimeToAMPM(time) {
+    const [hours, minutes] = time.split(":");
+    let period = "AM";
+    let formattedHours = parseInt(hours, 10);
+
+    if (formattedHours >= 12) {
+      period = "PM";
+      if (formattedHours > 12) {
+        formattedHours -= 12;
+      }
+    }
+
+    return `${formattedHours}:${minutes} ${period}`;
+  }
+
+
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
       <ToastContainer position="top-right" autoClose={3000} />{" "}
       <header className="bg-blue-600 text-white py-4 fixed top-0 w-full z-10">
         <div className="container mx-auto text-center">
           <h1 className="text-3xl font-semibold">
-            <FontAwesomeIcon icon={faUserMd} className="mr-2 text-4xl" />
-            Welcome, Dr.{" "}
-            {doctor ? `${doctor.firstName} ${doctor.lastName}` : "Loading..."}
+            <FontAwesomeIcon icon={faUser} className="mr-2 text-4xl" />
+            Welcome,{" "}
+            {patient
+              ? `${patient.firstName} ${patient.lastName}`
+              : "Loading..."}
           </h1>
         </div>
       </header>
@@ -129,11 +213,11 @@ console.log("appointments",appointments)
         <div className="border border-gray-300 p-6 rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="md:col-span-1 flex items-center">
-              {doctor ? (
+              {patient ? (
                 <div>
                   <h2 className="text-3xl font-semibold mb-2 text-blue-600">
                     <FontAwesomeIcon icon={faUser} className="mr-2 text-4xl" />
-                    {doctor.firstName} {doctor.lastName}
+                    {patient.firstName} {patient.lastName}
                   </h2>
                   {/* Edit icon and logic for First Name */}
                   {editingField === "firstName" ? (
@@ -146,7 +230,7 @@ console.log("appointments",appointments)
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() =>
-                          updateDoctorDetail("firstName", editedValue)
+                          updatePatientDetail("firstName", editedValue)
                         }
                       >
                         <FontAwesomeIcon icon={faSave} />
@@ -168,12 +252,12 @@ console.log("appointments",appointments)
                         className="text-blue-600 mr-2 text-xl"
                       />
                       <p className="text-lg text-gray-600">First Name:</p>
-                      <p className="text-lg ml-2">{doctor.firstName}</p>
+                      <p className="text-lg ml-2">{patient.firstName}</p>
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() => {
                           setEditingField("firstName");
-                          setEditedValue(doctor.firstName);
+                          setEditedValue(patient.firstName);
                         }}
                       >
                         <FontAwesomeIcon icon={faEdit} />
@@ -191,7 +275,7 @@ console.log("appointments",appointments)
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() =>
-                          updateDoctorDetail("lastName", editedValue)
+                          updatePatientDetail("lastName", editedValue)
                         }
                       >
                         <FontAwesomeIcon icon={faSave} />
@@ -213,76 +297,30 @@ console.log("appointments",appointments)
                         className="text-blue-600 mr-2 text-xl"
                       />
                       <p className="text-lg text-gray-600">Last Name:</p>
-                      <p className="text-lg ml-2">{doctor.lastName}</p>
+                      <p className="text-lg ml-2">{patient.lastName}</p>
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() => {
                           setEditingField("lastName");
-                          setEditedValue(doctor.lastName);
+                          setEditedValue(patient.lastName);
                         }}
                       >
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
                     </div>
                   )}
-                  {/* Edit icon and logic for Specialty */}
-                  {editingField === "specialty" ? (
+                  {/* Email */}
+                  {editingField === "email" ? (
                     <div className="flex items-center mb-4">
                       <input
-                        type="text"
+                        type="email"
                         value={editedValue}
                         onChange={(e) => setEditedValue(e.target.value)}
                       />
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() =>
-                          updateDoctorDetail("specialty", editedValue)
-                        }
-                      >
-                        <FontAwesomeIcon icon={faSave} />
-                      </button>
-                      <button
-                        className="text-red-600 ml-2"
-                        onClick={() => {
-                          setEditingField(null);
-                          setEditedValue("");
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faTimes} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center mb-4">
-                      {/* Display the doctor's specialty */}
-                      <FontAwesomeIcon
-                        icon={faStethoscope}
-                        className="text-blue-600 mr-2 w-5 h-5"
-                      />
-                      <p className="text-lg text-gray-600">Specialty:</p>
-                      <p className="text-lg ml-2">{doctor.specialty}</p>
-                      <button
-                        className="text-blue-600 ml-2"
-                        onClick={() => {
-                          setEditingField("specialty");
-                          setEditedValue(doctor.specialty);
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                    </div>
-                  )}
-                  {/* Edit icon and logic for Clinic Location */}
-                  {editingField === "clinicLocation" ? (
-                    <div className="flex items-center mb-4">
-                      <input
-                        type="text"
-                        value={editedValue}
-                        onChange={(e) => setEditedValue(e.target.value)}
-                      />
-                      <button
-                        className="text-blue-600 ml-2"
-                        onClick={() =>
-                          updateDoctorDetail("clinicLocation", editedValue)
+                          updatePatientDetail("email", editedValue)
                         }
                       >
                         <FontAwesomeIcon icon={faSave} />
@@ -300,16 +338,16 @@ console.log("appointments",appointments)
                   ) : (
                     <div className="flex items-center mb-4">
                       <FontAwesomeIcon
-                        icon={faMapMarkerAlt}
+                        icon={faEnvelope}
                         className="text-blue-600 mr-2 w-5 h-5"
                       />
-                      <p className="text-lg text-gray-600">Clinic Location:</p>
-                      <p className="text-lg ml-2">{doctor.clinicLocation}</p>
+                      <p className="text-lg text-gray-600">Email:</p>
+                      <p className="text-lg ml-2">{patient.email}</p>
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() => {
-                          setEditingField("clinicLocation");
-                          setEditedValue(doctor.clinicLocation);
+                          setEditingField("email");
+                          setEditedValue(patient.email);
                         }}
                       >
                         <FontAwesomeIcon icon={faEdit} />
@@ -317,18 +355,119 @@ console.log("appointments",appointments)
                     </div>
                   )}
 
-                  {/* Edit icon and logic for Contact Number */}
-                  {editingField === "contactNumber" ? (
+                  {/* Gender */}
+                  {editingField === "gender" ? (
                     <div className="flex items-center mb-4">
                       <input
-                        type="text"
+                        type="radio"
+                        value="male"
+                        checked={editedValue === "male"}
+                        onChange={() => setEditedValue("male")}
+                      />
+                      <label className="ml-2">Male</label>
+                      <input
+                        type="radio"
+                        value="female"
+                        checked={editedValue === "female"}
+                        onChange={() => setEditedValue("female")}
+                      />
+                      <label className="ml-2">Female</label>
+                      <button
+                        className="text-blue-600 ml-2"
+                        onClick={() =>
+                          updatePatientDetail("gender", editedValue)
+                        }
+                      >
+                        <FontAwesomeIcon icon={faSave} />
+                      </button>
+                      <button
+                        className="text-red-600 ml-2"
+                        onClick={() => {
+                          setEditingField(null);
+                          setEditedValue("");
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center mb-4">
+                      <FontAwesomeIcon
+                        icon={faVenusMars}
+                        className="text-blue-600 mr-2 w-5 h-5"
+                      />
+                      <p className="text-lg text-gray-600">Gender:</p>
+                      <p className="text-lg ml-2">{patient.gender}</p>
+                      <button
+                        className="text-blue-600 ml-2"
+                        onClick={() => {
+                          setEditingField("gender");
+                          setEditedValue(patient.gender);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Date of Birth */}
+                  {editingField === "dateOfBirth" ? (
+                    <div className="flex items-center mb-4">
+                      <input
+                        type="date"
                         value={editedValue}
                         onChange={(e) => setEditedValue(e.target.value)}
                       />
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() =>
-                          updateDoctorDetail("contactNumber", editedValue)
+                          updatePatientDetail("dateOfBirth", editedValue)
+                        }
+                      >
+                        <FontAwesomeIcon icon={faSave} />
+                      </button>
+                      <button
+                        className="text-red-600 ml-2"
+                        onClick={() => {
+                          setEditingField(null);
+                          setEditedValue("");
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center mb-4">
+                      <FontAwesomeIcon
+                        icon={faCalendar}
+                        className="text-blue-600 mr-2 w-5 h-5"
+                      />
+                      <p className="text-lg text-gray-600">Date of Birth:</p>
+                      <p className="text-lg ml-2">{patient.dateOfBirth}</p>
+                      <button
+                        className="text-blue-600 ml-2"
+                        onClick={() => {
+                          setEditingField("dateOfBirth");
+                          setEditedValue(patient.dateOfBirth);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Contact Number */}
+                  {editingField === "contactNumber" ? (
+                    <div className="flex items-center mb-4">
+                      <input
+                        type="tel"
+                        value={editedValue}
+                        onChange={(e) => setEditedValue(e.target.value)}
+                      />
+                      <button
+                        className="text-blue-600 ml-2"
+                        onClick={() =>
+                          updatePatientDetail("contactNumber", editedValue)
                         }
                       >
                         <FontAwesomeIcon icon={faSave} />
@@ -350,12 +489,12 @@ console.log("appointments",appointments)
                         className="text-blue-600 mr-2 w-5 h-5"
                       />
                       <p className="text-lg text-gray-600">Contact Number:</p>
-                      <p className="text-lg ml-2">{doctor.contactNumber}</p>
+                      <p className="text-lg ml-2">{patient.contactNumber}</p>
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() => {
                           setEditingField("contactNumber");
-                          setEditedValue(doctor.contactNumber);
+                          setEditedValue(patient.contactNumber);
                         }}
                       >
                         <FontAwesomeIcon icon={faEdit} />
@@ -363,18 +502,26 @@ console.log("appointments",appointments)
                     </div>
                   )}
 
-                  {/* Edit icon and logic for Working Hours */}
-                  {editingField === "workingHours" ? (
+                  {/* Blood Group */}
+                  {editingField === "bloodGroup" ? (
                     <div className="flex items-center mb-4">
-                      <input
-                        type="text"
+                      <select
                         value={editedValue}
                         onChange={(e) => setEditedValue(e.target.value)}
-                      />
+                      >
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() =>
-                          updateDoctorDetail("workingHours", editedValue)
+                          updatePatientDetail("bloodGroup", editedValue)
                         }
                       >
                         <FontAwesomeIcon icon={faSave} />
@@ -392,61 +539,16 @@ console.log("appointments",appointments)
                   ) : (
                     <div className="flex items-center mb-4">
                       <FontAwesomeIcon
-                        icon={faClock}
+                        icon={faTint}
                         className="text-blue-600 mr-2 w-5 h-5"
                       />
-                      <p className="text-lg text-gray-600">Working Hours:</p>
-                      <p className="text-lg ml-2">
-                        {doctor.workingHours} hours per day
-                      </p>
+                      <p className="text-lg text-gray-600">Blood Group:</p>
+                      <p className="text-lg ml-7">{patient.bloodGroup}</p>
                       <button
                         className="text-blue-600 ml-2"
                         onClick={() => {
-                          setEditingField("workingHours");
-                          setEditedValue(doctor.workingHours);
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Edit icon and logic for About */}
-                  {editingField === "about" ? (
-                    <div className="flex items-center mb-4">
-                      <textarea
-                        value={editedValue}
-                        onChange={(e) => setEditedValue(e.target.value)}
-                      />
-                      <button
-                        className="text-blue-600 ml-2"
-                        onClick={() => updateDoctorDetail("about", editedValue)}
-                      >
-                        <FontAwesomeIcon icon={faSave} />
-                      </button>
-                      <button
-                        className="text-red-600 ml-2"
-                        onClick={() => {
-                          setEditingField(null);
-                          setEditedValue("");
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faTimes} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center mb-4">
-                      <FontAwesomeIcon
-                        icon={faInfoCircle}
-                        className="text-blue-600 mr-2 w-5 h-5"
-                      />
-                      <p className="text-lg text-gray-600">About:</p>
-                      <p className="text-lg ml-7">{doctor.about}</p>
-                      <button
-                        className="text-blue-600 ml-2"
-                        onClick={() => {
-                          setEditingField("about");
-                          setEditedValue(doctor.about);
+                          setEditingField("bloodGroup");
+                          setEditedValue(patient.bloodGroup);
                         }}
                       >
                         <FontAwesomeIcon icon={faEdit} />
@@ -455,16 +557,24 @@ console.log("appointments",appointments)
                   )}
                 </div>
               ) : (
-                <p className="text-lg">Loading doctor data...</p>
+                <p className="text-lg">Loading patient data...</p>
               )}
             </div>
 
             <div className="md:col-span-1">
               <div className="w-96 h-96 mx-auto relative rounded-full overflow-hidden">
                 <img
-                  src={doctor ? doctor.profile : ""}
-                  alt={doctor ? `${doctor.firstName} ${doctor.lastName}` : ""}
-                  className="w-96 h-96 object-cover"
+                  src={
+                    patient
+                      ? patient.gender === "female"
+                        ? "https://png.pngtree.com/png-vector/20190130/ourlarge/pngtree-cute-girl-avatar-material-png-image_678035.jpg"
+                        : "https://yt3.googleusercontent.com/ytc/AGIKgqNO2Cz7ILUFn2DRPVjta3eANRPAhbI8eMeqcSjA=s900-c-k-c0x00ffffff-no-rj"
+                      : ""
+                  }
+                  alt={
+                    patient ? `${patient.firstName} ${patient.lastName}` : ""
+                  }
+                  className="w-96 h-96 object-cover mix-blend-multiply"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-50 hover:bg-opacity-70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <p className="text-white text-lg font-semibold">
@@ -475,6 +585,7 @@ console.log("appointments",appointments)
             </div>
           </div>
         </div>
+
         <div className="border border-gray-300 p-6 rounded-lg mt-8">
           <h2 className="text-3xl font-semibold mt-8 text-blue-600">
             <FontAwesomeIcon icon={faUserPlus} className="mr-2 text-4xl" />
@@ -486,124 +597,55 @@ console.log("appointments",appointments)
         </div>
 
         <hr className="my-6 border-t border-gray-300" />
-        <h2 className="text-3xl font-semibold mt-8 text-blue-600">
-          <FontAwesomeIcon
-            icon={faInfoCircle}
-            className="mr-2 text-blue-600 text-4xl"
-          />
-          About Dr. {doctor ? doctor.firstName : "Loading..."}{" "}
-          {doctor ? doctor.lastName : "Loading..."}
-        </h2>
-        {doctor ? (
-          <>
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              Dr. {doctor.firstName} {doctor.lastName} is a highly respected and
-              accomplished medical professional in the field of{" "}
-              {doctor.specialty}. With an extensive background in{" "}
-              {doctor.specialty}, Dr. {doctor.lastName} has garnered a
-              reputation for excellence and a commitment to improving the health
-              and well-being of patients. Graduating with top honors from a
-              renowned medical institution, Dr. {doctor.lastName} brings a
-              wealth of knowledge and skill to every patient interaction.
-            </p>
-
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              The journey of healing and healthcare begins at{" "}
-              {doctor.clinicLocation}, where Dr. {doctor.lastName} operates a
-              modern and well-equipped medical practice. Patients can trust in
-              the expertise and compassionate care provided by Dr.{" "}
-              {doctor.lastName} and the dedicated team.
-            </p>
-
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              Dr. {doctor.lastName} believes in the importance of accessibility
-              and is readily available to patients via phone at{" "}
-              {doctor.contactNumber}. Whether you need to schedule an
-              appointment or seek medical advice, Dr. {doctor.lastName} is just
-              a call away.
-            </p>
-
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              With a commitment to the well-being of the community, Dr.{" "}
-              {doctor.lastName}
-              dedicates {doctor.workingHours} hours every day to patient care,
-              ensuring that no medical concern goes unattended. This dedication
-              extends to providing personalized treatment plans, tailored to
-              meet the unique needs of each patient.
-            </p>
-
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              Beyond the clinical setting, Dr. {doctor.lastName} is known for
-              involvement in health education and awareness programs,
-              demonstrating a passion for improving public health. Patients not
-              only receive expert medical care but also benefit from Dr.{" "}
-              {doctor.lastName}'s guidance on preventive health measures.
-            </p>
-
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              Dr. {doctor.lastName} takes pride in fostering a welcoming and
-              inclusive environment for patients of all backgrounds, ensuring
-              that everyone feels comfortable and respected during
-              consultations. Patients consistently commend Dr. {doctor.lastName}{" "}
-              for exceptional bedside manner and the ability to explain complex
-              medical concepts in an understandable way.
-            </p>
-
-            <p className="text-lg border border-gray-300 p-6 rounded-lg mt-4">
-              If you're looking for a healthcare provider who combines
-              expertise, compassion, and a commitment to excellence, Dr.{" "}
-              {doctor.lastName} is the ideal choice. Your health and well-being
-              are the top priorities, and Dr. {doctor.lastName} is dedicated to
-              guiding you on your path to optimal health. Experience the
-              difference of patient-centered care with Dr. {doctor.firstName}{" "}
-              {doctor.lastName}. Schedule your appointment today and embark on a
-              journey toward a healthier, happier life under the care of a
-              trusted medical professional.
-            </p>
-          </>
-        ) : null}
 
         <div className="mt-8">
-          <h2 className="text-3xl font-semibold mb-4 text-blue-600">
-            <FontAwesomeIcon
-              icon={faUserPlus}
-              className="mr-2 text-blue-600 text-4xl"
-            />
-            Upcoming Appointments
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white text-gray-800 border-collapse rounded-lg overflow-hidden text-center">
-              <thead>
-                <tr className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 text-white">
-                  <th className="px-6 py-4 text-lg">Patient</th>
-                  <th className="px-6 py-4 text-lg">Date</th>
-                  <th className="px-6 py-4 text-lg">Time</th>
-                  <th className="px-6 py-4 text-lg">Disease</th>
-                  <th className="px-6 py-4 text-lg">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((appointment, index) => (
-                  <tr
-                    key={appointment._id}
-                    className={`group transition-all hover:bg-blue-200 ${
-                      index % 2 === 0 ? "bg-gray-100" : "bg-white"
-                    }`}
-                  >
-                    <td className="px-6 py-4 text-lg">{`${appointment.patient.firstName} ${appointment.patient.lastName}`}</td>
-                    <td className="px-6 py-4 text-lg">
-                      {appointment.appointmentDate}
-                    </td>
-                    <td className="px-6 py-4 text-lg">{`${appointment.startTime} - ${appointment.endTime}`}</td>
-                    <td className="px-6 py-4 text-lg group-hover:overflow-visible relative">
-                      <span className="">{appointment.disease}</span>
-                      <div className="hidden absolute bg-white border border-gray-300 p-4 top-10 left-0 w-60 shadow-lg opacity-0 group-hover:opacity-100 transform group-hover:translate-y-2 transition-all">
-                        <p className="text-sm font-normal text-gray-600">
-                          {appointment.additionalInfo}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-lg">
+          {appointments.length > 0 ? (
+            <>
+              <h2 className="text-3xl font-semibold mb-4 text-blue-600">
+                <FontAwesomeIcon
+                  icon={faUserPlus}
+                  className="mr-2 text-blue-600 text-4xl"
+                />
+                Upcoming Appointments
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white text-gray-800 border-collapse rounded-lg overflow-hidden text-center">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 text-white text-center">
+                      <th className="px-6 py-4 text-lg">Doctor</th>
+                      <th className="px-6 py-4 text-lg">Date</th>
+                      <th className="px-6 py-4 text-lg">Time</th>
+                      <th className="px-6 py-4 text-lg">Disease</th>
+                      <th className="px-6 py-4 text-lg">Status</th>
+                      <th className="px-6 py-4 text-lg">Actions</th>{" "}
+                      {/* Add a column for actions */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {appointments.map((appointment, index) => (
+                      <tr
+                        key={appointment._id}
+                        className={`group transition-all hover:bg-indigo-200 ${
+                          index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                        }`}
+                      >
+                        <td className="px-6 py-4 text-lg">{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>
+                        <td className="px-6 py-4 text-lg">
+                          {appointment.appointmentDate}
+                        </td>
+                        <td className="px-6 py-4 text-lg">{`${formatTimeToAMPM(
+                          appointment.startTime
+                        )} - ${formatTimeToAMPM(appointment.endTime)}`}</td>
+
+                        <td className="px-6 py-4 text-lg group-hover:overflow-visible relative">
+                          <span className="">{appointment.disease}</span>
+                          <div className="hidden absolute bg-white border border-gray-300 p-4 top-10 left-0 w-60 shadow-lg opacity-0 group-hover:opacity-100 transform group-hover:translate-y-2 transition-all">
+                            <p className="text-sm font-normal text-gray-600">
+                              {appointment.additionalInfo}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-lg">
                           {editingField === appointment._id ? (
                             <div className="flex items-center">
                               <select
@@ -665,15 +707,40 @@ console.log("appointments",appointments)
                             </div>
                           )}
                         </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+                        <td className="px-6 py-4 text-lg">
+                          <button
+                            className="text-blue-600 ml-2"
+                            onClick={() => openEditModal(appointment)}
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            className="text-red-600 ml-2"
+                            onClick={() => deleteAppointment(appointment._id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : null}
         </div>
+        {/* Render the edit appointment modal */}
+        {editModalOpen && (
+          <EditAppointmentModal
+            appointment={editAppointmentData}
+            closeModal={closeEditModal}
+            updateAppointment={updateAppointmentData}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default DoctorDashboard;
+export default MyAppointment;

@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const PatientModel = require("../Models/Patient.model");
+const jwt=require("jsonwebtoken")
 
 // Controller function for patient registration
 const registerPatient = async (req, res) => {
@@ -48,9 +49,11 @@ const loginPatient = async (req, res) => {
         if (!passwordMatch) {
             return res.status(400).json({ message: 'Incorrect password!', status: false });
         }
-
+        var token = jwt.sign({ userId: patient._id }, `${process.env.secretKey}`);
+        // userId: patient._id
+        console.log("userId1: ", patient._id)
         // If email and password are correct, send a success response
-        res.status(200).json({ message: 'Login successful!', status: true });
+        res.status(200).json({ message: 'Login successful!', status: true, token, userId: patient._id });
     } catch (error) {
         // Handle errors and send an error response
         console.error(error);
@@ -63,7 +66,7 @@ const getPatientById = async (req, res) => {
         const patientId = req.params.patientId;
 
         // Find the patient by ID
-        const patient = await PatientModel.findById(patientId).populate('appointments');
+        const patient = await PatientModel.findById(patientId).populate('appointments')
 
         if (!patient) {
             return res.status(404).json({ message: 'Patient not found' });
