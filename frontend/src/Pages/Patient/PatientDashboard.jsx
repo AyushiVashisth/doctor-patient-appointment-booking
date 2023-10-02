@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import DoctorCard from "./DoctorCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import DoctorCard from "../../components/Patient/DoctorCard";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const PatientDashboard = () => {
   const [doctors, setDoctors] = useState([]);
-  const [totalAppointments, setTotalAppointments] = useState(0); // State to hold total appointments
+  const [totalAppointments, setTotalAppointments] = useState(0);
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/doctor/all");
+        const response = await axios.get("http://localhost:8080/doctor/all", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         if (response.data.doctors) {
           setDoctors(response.data.doctors);
         }
@@ -27,7 +32,12 @@ const PatientDashboard = () => {
       try {
         if (patientId) {
           const response = await axios.get(
-            `http://localhost:8080/appointment/patient/${patientId}`
+            `http://localhost:8080/appointment/patient/${patientId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
           );
 
           const data = response.data;
@@ -40,7 +50,9 @@ const PatientDashboard = () => {
 
     fetchDoctors();
     fetchTotalAppointments();
-  }, []);
+  }, [token]);
+
+  const breadcrumbs = [{ title: "Home", link: "/patient-dashboard" }];
 
   return (
     <>
@@ -68,6 +80,7 @@ const PatientDashboard = () => {
             )}
           </button>
         </div>
+        <Breadcrumb items={breadcrumbs} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {doctors.map((doctor) => (
             <DoctorCard key={doctor._id} doctor={doctor} />

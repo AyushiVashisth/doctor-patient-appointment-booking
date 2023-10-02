@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -56,12 +56,12 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-[url(https://healthworldnet.com/imagesHealthCloudBusinessofHealthHospitalsClinicshospital_800.jpg)] bg-cover ">
       <div className=" bg-opacity-10 backdrop-blur-xl w-full max-w-md p-6 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-extrabold text-center text-indigo-700 mb-6">
+        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">
           Login
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-indigo-700 text-sm font-extrabold mb-2">
+            <label className="block text-indigo-700 text-sm font-bold mb-2">
               Email
             </label>
             <input
@@ -75,7 +75,7 @@ const Login = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-indigo-700 text-sm font-extrabold mb-2">
+            <label className="block text-indigo-700 text-sm font-bold mb-2">
               Password
             </label>
             <input
@@ -89,7 +89,7 @@ const Login = () => {
             />
           </div>
           <div className="flex items-center space-x-4">
-            <label className="block text-indigo-700 text-sm font-extrabold mb-2">
+            <label className="block text-indigo-700 text-sm font-bold mb-2">
               Role
             </label>
             <div className="flex items-center space-x-4">
@@ -102,7 +102,7 @@ const Login = () => {
                   onChange={handleRoleChange}
                   className="mr-2 -mt-2"
                 />
-                <span className="text-sm text-indigo-700 font-extrabold -mt-2">
+                <span className="text-sm text-indigo-700 font-bold -mt-2">
                   Patient
                 </span>
               </label>
@@ -116,7 +116,7 @@ const Login = () => {
                   onChange={handleRoleChange}
                   className="mr-2 -mt-2"
                 />
-                <span className="text-sm text-indigo-700 font-extrabold -mt-2">
+                <span className="text-sm text-indigo-700 font-bold -mt-2">
                   Doctor
                 </span>
               </label>
@@ -130,7 +130,7 @@ const Login = () => {
                   onChange={handleRoleChange}
                   className="mr-2 -mt-2"
                 />
-                <span className="text-sm text-indigo-700 font-extrabold -mt-2">
+                <span className="text-sm text-indigo-700 font-bold -mt-2">
                   Admin
                 </span>
               </label>
@@ -143,6 +143,13 @@ const Login = () => {
             >
               Login
             </button>
+          </div>
+          {/* Add the Registration link below the Login button */}
+          <div className="text-center mt-4">
+            New user?
+            <Link to="/" className="text-indigo-700 hover:underline">
+              Register here.
+            </Link>
           </div>
         </form>
         <ToastContainer position="bottom-right" />

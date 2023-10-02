@@ -55,7 +55,7 @@ const EditAppointmentModal = ({
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-opacity-10 backdrop-blur-xs">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md bg-opacity-20 backdrop-blur-3xl ">
-        <h2 className="text-xl font-extrabold mb-4 text-center text-blue-700">
+        <h2 className="text-xl font-bold mb-4 text-center text-blue-700">
           <FontAwesomeIcon icon={faEdit} className="mr-2 text-blue-600" />
           Edit Appointment
         </h2>

@@ -26,7 +26,7 @@ const register = async (req, res) => {
             password: hashedPassword,
             profile: getRandomDoctorImage()
         });
-        console.log(newDoctor)
+        // console.log(newDoctor)
         // Save the new doctor to the database
         newDoctor.save();
 

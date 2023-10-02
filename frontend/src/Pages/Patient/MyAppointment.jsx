@@ -20,7 +20,8 @@ import {
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import EditAppointmentModal from "./EditAppointmentModal";
+import Breadcrumb from "../../components/Breadcrumb";
+import EditAppointmentModal from "../../components/Patient/EditAppointmentModal";
 
 const statusColors = {
   scheduled: "text-blue-500 ",
@@ -36,6 +37,8 @@ const MyAppointment = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editAppointmentData, setEditAppointmentData] = useState(null);
   const [editedStatus, setEditedStatus] = useState({});
+  const token = localStorage.getItem("token");
+  console.log("patientData", patient);
 
   useEffect(() => {
     const patientId = localStorage.getItem("userId");
@@ -44,7 +47,12 @@ const MyAppointment = () => {
       try {
         if (patientId) {
           const response = await axios.get(
-            `http://localhost:8080/appointment/patient/${patientId}`
+            `http://localhost:8080/appointment/patient/${patientId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
           );
 
           const data = response.data;
@@ -57,14 +65,25 @@ const MyAppointment = () => {
     };
 
     fetchPatientData();
-  }, []);
+  }, [token]);
 
   const updatePatientDetail = async (field, value) => {
     try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId"); // Get the userId from localStorage
+      console.log("token userId", token, userId);
+      const requestBody = {
+        [field]: value,
+        role: "patient"
+      };
+
       const response = await axios.patch(
-        `http://localhost:8080/patient/${patient._id}`,
+        `http://localhost:8080/patient/${userId}`,
+        requestBody,
         {
-          [field]: value
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
@@ -77,12 +96,15 @@ const MyAppointment = () => {
         console.error("Failed to update patient detail");
       }
     } catch (error) {
-      console.error("Error updating patient detail:", error);
-      toast.error(`Error updating ${field}`);
+      if (error.response && error.response.status === 403) {
+        toast.error("You don't have permission to update this field.");
+      } else {
+        console.error("Error updating patient detail:", error);
+        toast.error(`Error updating ${field}`);
+      }
     }
   };
 
-  
   const openEditModal = (appointment) => {
     setEditAppointmentData(appointment);
     setEditModalOpen(true);
@@ -93,10 +115,21 @@ const MyAppointment = () => {
   };
 
   const updateAppointmentData = async (updatedData) => {
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+    const requestBody = {
+      updatedData,
+      role: "patient"
+    };
     try {
       const response = await axios.patch(
         `http://localhost:8080/appointment/${editAppointmentData._id}`,
-        updatedData
+        requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
       if (response.status === 200) {
@@ -118,9 +151,19 @@ const MyAppointment = () => {
   };
 
   const deleteAppointment = async (appointmentId) => {
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+    // const requestBody = {
+    //   role: "patient"
+    // };
     try {
       const response = await axios.delete(
-        `http://localhost:8080/appointment/${appointmentId}`
+        `http://localhost:8080/appointment/${appointmentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
       if (response.status === 200) {
@@ -152,12 +195,21 @@ const MyAppointment = () => {
 
   const saveEditedStatus = async (appointmentId) => {
     const newStatus = editedStatus[appointmentId];
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+    const requestBody = {
+      status: newStatus,
+      role: "patient"
+    };
 
     try {
       const response = await axios.patch(
         `http://localhost:8080/appointment/${appointmentId}`,
+        requestBody,
         {
-          status: newStatus
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
@@ -194,6 +246,10 @@ const MyAppointment = () => {
     return `${formattedHours}:${minutes} ${period}`;
   }
 
+  const breadcrumbs = [
+    { title: "Home", link: "/patient-dashboard" },
+    { title: "My Appointment", link: "/myappointment" }
+  ];
 
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
@@ -210,6 +266,8 @@ const MyAppointment = () => {
         </div>
       </header>
       <div className="container mx-auto py-8 mt-12">
+        {/* Display Breadcrumbs */}
+        <Breadcrumb items={breadcrumbs} />
         <div className="border border-gray-300 p-6 rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="md:col-span-1 flex items-center">

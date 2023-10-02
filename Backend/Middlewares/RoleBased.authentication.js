@@ -10,8 +10,11 @@ const DoctorAuth=(req,res,next)=>{
 }
 
 const PatientAuth=(req,res,next)=>{
-    let {role}=req.body
+    console.log(req.body)
+    const {role}=req.body
+    console.log("Role:",role)
     if(role=="patient" || role=="admin" ||role=="doctor"){
+        console.log(role)
         next()
     }else{
         res.status(403).json({ message: 'Admin or Doctor can acsess',status:true });

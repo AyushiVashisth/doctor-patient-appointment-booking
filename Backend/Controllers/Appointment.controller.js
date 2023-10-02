@@ -50,7 +50,7 @@ const getDoctorAppointmentById = async (req, res) => {
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found' });
         }
-console.log("Appointment", appointment)
+// console.log("Appointment", appointment)
         // Send a success response with the appointment data
         res.status(200).json({ appointment });
     } catch (error) {

@@ -23,13 +23,13 @@ DoctorRouter.delete("/:doctorId", Auth, DoctorAuth, deleteDoctor);
 
 // Doctor Update
 // DoctorRouter.patch("/:doctorId", Auth, DoctorAuth, updateDoctor);
-DoctorRouter.patch("/:doctorId", updateDoctor);
+DoctorRouter.patch("/:doctorId",Auth,DoctorAuth, updateDoctor);
 
 // All Doctors Data
-DoctorRouter.get("/all", getAllDoctors);
+DoctorRouter.get("/all",Auth, getAllDoctors);
 //find Doctor by id
 DoctorRouter.get("/", Auth, DoctorAuth, findDoctor);
 //only do changes in appoinment
-DoctorRouter.patch("/appoinment/:doctorId", Auth, updateAppointment);
+DoctorRouter.patch("/appoinment/:doctorId", Auth, DoctorAuth, updateAppointment);
 
 module.exports = DoctorRouter;

@@ -21,11 +21,11 @@ PatientRouter.post("/login", loginPatient);
 PatientRouter.get("/:patientId", Auth, PatientAuth, getPatientById);
 
 // Update a patient by ID
-// PatientRouter.patch("/:patientId", Auth, PatientAuth, updatePatientById);
-PatientRouter.patch("/:patientId", updatePatientById);
+PatientRouter.patch("/:patientId",Auth,PatientAuth, updatePatientById);
+// PatientRouter.patch("/:patientId", updatePatientById);
 
 
-PatientRouter.patch("/appointment/:patientId", updateAppointment);
+PatientRouter.patch("/appointment/:patientId",Auth,PatientAuth, updateAppointment);
 
 // Delete a patient by ID
 PatientRouter.delete("/:patientId", Auth, PatientAuth, deletePatientById);

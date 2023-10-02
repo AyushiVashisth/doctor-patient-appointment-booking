@@ -18,12 +18,10 @@ AppointmentRouter.get("/doctor/:doctorId", getDoctorAppointmentById);
 AppointmentRouter.get("/patient/:patientId", getPatientAppointmentById);
 
 // Update an appointment by ID
-// AppointmentRouter.patch("/:appointmentId", Auth, updateAppointmentById);   //table -patient
-AppointmentRouter.patch("/:appointmentId", updateAppointmentById);   //table -patient
+AppointmentRouter.patch("/:appointmentId", Auth, updateAppointmentById);   
 
 // Delete an appointment by ID
-// AppointmentRouter.delete("/:appointmentId", Auth, deleteAppointmentById);
-AppointmentRouter.delete("/:appointmentId", deleteAppointmentById);
+AppointmentRouter.delete("/:appointmentId", Auth, deleteAppointmentById);
 
 
 module.exports = AppointmentRouter;

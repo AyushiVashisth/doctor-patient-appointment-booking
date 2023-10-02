@@ -32,29 +32,48 @@ const DoctorDashboard = () => {
   const [editingField, setEditingField] = useState(null);
   const [editedValue, setEditedValue] = useState("");
   const [editedStatus, setEditedStatus] = useState({});
+  const token = localStorage.getItem("token");
 
-console.log("appointments",appointments)
+  console.log("appointments", appointments);
   useEffect(() => {
     const doctorId = localStorage.getItem("userId");
+
     if (doctorId) {
-      fetch(`http://localhost:8080/appointment/doctor/${doctorId}`)
-        .then((response) => response.json())
-        .then((data) => {
+      axios
+        .get(`http://localhost:8080/appointment/doctor/${doctorId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then((response) => {
+          const data = response.data;
           console.log("response", data.appointment[0].doctor);
           setDoctor(data.appointment[0].doctor);
           setAppointments(data.appointment);
         })
-        .catch((error) => console.error("Error fetching doctor data:", error));
+        .catch((error) => {
+          console.error("Error fetching doctor data:", error);
+        });
     }
-  }, []);
+  }, [token]);
 
   const updateDoctorDetail = async (field, value) => {
     console.log("Doctorid", doctor._id);
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    console.log("token userId", token, userId);
+    const requestBody = {
+      [field]: value,
+      role: "doctor"
+    };
     try {
       const response = await axios.patch(
-        `http://localhost:8080/doctor/${doctor._id}`,
+        `http://localhost:8080/doctor/${userId}`,
+        requestBody,
         {
-          [field]: value
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
@@ -86,17 +105,25 @@ console.log("appointments",appointments)
 
   const saveEditedStatus = async (appointmentId) => {
     const newStatus = editedStatus[appointmentId];
-
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    console.log("token userId", token, userId);
+    const requestBody = {
+      status: newStatus,
+      role: "doctor"
+    };
     try {
       const response = await axios.patch(
         `http://localhost:8080/appointment/${appointmentId}`,
+        requestBody,
         {
-          status: newStatus
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
       if (response.status === 200) {
-        // Update the local state with the new status
         const updatedAppointments = appointments.map((appointment) =>
           appointment._id === appointmentId
             ? { ...appointment, status: newStatus }
@@ -604,67 +631,67 @@ console.log("appointments",appointments)
                       </div>
                     </td>
                     <td className="px-6 py-4 text-lg">
-                          {editingField === appointment._id ? (
-                            <div className="flex items-center">
-                              <select
-                                value={
-                                  editedStatus[appointment._id] ||
-                                  appointment.status
-                                }
-                                onChange={(event) =>
-                                  handleStatusChange(event, appointment)
-                                }
-                                className="mr-2"
-                              >
-                                <option value="scheduled">Scheduled</option>
-                                <option value="completed">Completed</option>
-                                <option value="canceled">Canceled</option>
-                              </select>
-                              <button
-                                className="text-blue-600"
-                                onClick={() => {
-                                  saveEditedStatus(appointment._id);
-                                  setEditingField(null);
-                                }}
-                              >
-                                <FontAwesomeIcon icon={faSave} />
-                              </button>
-                            </div>
-                          ) : (
-                            <div
-                              className={`px-4 py-2 text-lg ${
-                                statusColors[appointment.status]
-                              }`}
-                            >
-                              {appointment.status}
-                              <span className="mr-2 ml-3">
-                                {appointment.status === "scheduled" && (
-                                  <FontAwesomeIcon icon={faClock} />
-                                )}
-                                {appointment.status === "completed" && (
-                                  <FontAwesomeIcon icon={faCheckCircle} />
-                                )}
-                                {appointment.status === "canceled" && (
-                                  <FontAwesomeIcon icon={faBan} />
-                                )}
-                              </span>
-                              <button
-                                className={`${
-                                  statusColors[appointment.status]
-                                } ml-2 text-sm`}
-                                onClick={() => {
-                                  setEditingField(appointment._id);
-                                  setEditedStatus({
-                                    ...editedStatus,
-                                    [appointment._id]: appointment.status
-                                  });
-                                }}
-                              >
-                                <FontAwesomeIcon icon={faPencilAlt} />
-                              </button>
-                            </div>
-                          )}
-                        </td>
+                      {editingField === appointment._id ? (
+                        <div className="flex items-center">
+                          <select
+                            value={
+                              editedStatus[appointment._id] ||
+                              appointment.status
+                            }
+                            onChange={(event) =>
+                              handleStatusChange(event, appointment)
+                            }
+                            className="mr-2"
+                          >
+                            <option value="scheduled">Scheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="canceled">Canceled</option>
+                          </select>
+                          <button
+                            className="text-blue-600"
+                            onClick={() => {
+                              saveEditedStatus(appointment._id);
+                              setEditingField(null);
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faSave} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          className={`px-4 py-2 text-lg ${
+                            statusColors[appointment.status]
+                          }`}
+                        >
+                          {appointment.status}
+                          <span className="mr-2 ml-3">
+                            {appointment.status === "scheduled" && (
+                              <FontAwesomeIcon icon={faClock} />
+                            )}
+                            {appointment.status === "completed" && (
+                              <FontAwesomeIcon icon={faCheckCircle} />
+                            )}
+                            {appointment.status === "canceled" && (
+                              <FontAwesomeIcon icon={faBan} />
+                            )}
+                          </span>
+                          <button
+                            className={`${
+                              statusColors[appointment.status]
+                            } ml-2 text-sm`}
+                            onClick={() => {
+                              setEditingField(appointment._id);
+                              setEditedStatus({
+                                ...editedStatus,
+                                [appointment._id]: appointment.status
+                              });
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faPencilAlt} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

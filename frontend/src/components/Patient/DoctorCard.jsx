@@ -9,11 +9,12 @@ import {
   faCalendarCheck
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "react-modal";
-import AppointmentForm from "./AppointmentForm";
 import axios from "axios";
+import AppointmentForm from "./AppointmentForm";
 
 const DoctorCard = ({ doctor }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const token = localStorage.getItem("token");
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -54,11 +55,24 @@ const DoctorCard = ({ doctor }) => {
   };
 
   const updateDoctorAppointments = (doctorId, appointmentId) => {
-    console.log("Updating doctor appointments. Doctor ID:", doctorId);
+    const token = localStorage.getItem("token");
+    console.log("Updating doctor appointments. Doctor ID:", doctorId, token);
+
+    const requestBody = {
+      appointmentId: appointmentId,
+      role: "doctor"
+    };
+
     axios
-      .patch(`http://localhost:8080/doctor/appoinment/${doctorId}`, {
-        appointmentId: appointmentId
-      })
+      .patch(
+        `http://localhost:8080/doctor/appoinment/${doctorId}`,
+        requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
       .then((response) => {
         console.log("Doctor's appointments updated:", response.data);
       })
@@ -68,10 +82,22 @@ const DoctorCard = ({ doctor }) => {
   };
 
   const updatePatientAppointments = (patientId, appointmentId) => {
+    const token = localStorage.getItem("token");
+    console.log("Updating patient appointments. Patient ID:", patientId, token);
+    const requestBody = {
+      appointmentId: appointmentId,
+      role: "doctor"
+    };
     axios
-      .patch(`http://localhost:8080/patient/appointment/${patientId}`, {
-        appointmentId: appointmentId
-      })
+      .patch(
+        `http://localhost:8080/patient/appointment/${patientId}`,
+        requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
       .then((response) => {
         console.log("Patient's appointments updated:", response.data);
       })
