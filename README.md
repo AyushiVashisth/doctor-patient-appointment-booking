@@ -1,4 +1,4 @@
-<h1 align="center">🚀 Doctor-Patient-Appointment-Booking 🚀</h1>
+<h1 align="center">🩺👩‍⚕️ Doctor-Patient-Appointment-Booking 👩‍⚕️🩺</h1>
 
 <p align="center">
   <img src="https://art.pixilart.com/486745d4bb1ef18.gif" width="20" height="20">
@@ -140,4 +140,4 @@ We welcome contributions to the Doctor-Patient-Appointment-Booking project. If y
 
 If you find this project interesting or valuable, please consider giving it a ⭐️.
 
-<h1 align="center">🚀 Happy Exploring! 🌌</h1>
+<h1 align="center">🩺👩‍⚕️ Happy Exploring! 👩‍⚕️🩺</h1>
