@@ -14,7 +14,8 @@ import {
   faUser,
   faCheckCircle,
   faBan,
-  faPencilAlt
+  faPencilAlt,
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -137,6 +138,34 @@ const DoctorDashboard = () => {
     } catch (error) {
       console.error("Error updating appointment status:", error);
       toast.error("Error updating appointment status");
+    }
+  };
+
+  const deleteAppointment = async (appointmentId) => {
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/appointment/${appointmentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        const updatedAppointments = appointments.filter(
+          (appointment) => appointment._id !== appointmentId
+        );
+        setAppointments(updatedAppointments);
+        toast.success("Appointment deleted successfully");
+      } else {
+        console.error("Failed to delete appointment");
+      }
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast.error("Error deleting appointment");
     }
   };
 
@@ -607,6 +636,7 @@ const DoctorDashboard = () => {
                   <th className="px-6 py-4 text-lg">Time</th>
                   <th className="px-6 py-4 text-lg">Disease</th>
                   <th className="px-6 py-4 text-lg">Status</th>
+                  <th className="px-6 py-4 text-lg">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -692,6 +722,14 @@ const DoctorDashboard = () => {
                         </div>
                       )}
                     </td>
+                    <td className="px-6 py-4 text-lg">
+                          <button
+                            className="text-red-600 ml-2"
+                            onClick={() => deleteAppointment(appointment._id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </td>
                   </tr>
                 ))}
               </tbody>

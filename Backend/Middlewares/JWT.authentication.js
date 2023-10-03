@@ -9,7 +9,7 @@ const Auth = (req, res, next) => {
     if (tok) {
         jwt.verify(tok,process.env.secretKey, function (err, decoded) {
             if (decoded) {
-                req.body.userID = decoded.userId
+                // req.body.userID = decoded.userId
                 console.log("decode",decoded)
                 next()
             } else {

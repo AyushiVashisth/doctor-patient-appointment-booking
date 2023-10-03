@@ -209,7 +209,8 @@ const MyAppointment = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`
-          }
+          },
+          
         }
       );
 

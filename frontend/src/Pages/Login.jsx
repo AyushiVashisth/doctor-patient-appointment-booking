@@ -60,34 +60,35 @@ const Login = () => {
           Login
         </h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-indigo-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-indigo-700 text-sm font-bold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+        <div className="mb-4">
+  <label className="block text-indigo-700 text-sm font-bold mb-2">
+    Email<span className="text-red-500">*</span>
+  </label>
+  <input
+    type="email"
+    name="email"
+    value={formData.email}
+    onChange={handleInputChange}
+    className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
+    placeholder="Enter your email"
+    required
+  />
+</div>
+<div className="mb-4">
+  <label className="block text-indigo-700 text-sm font-bold mb-2">
+    Password<span className="text-red-500">*</span>
+  </label>
+  <input
+    type="password"
+    name="password"
+    value={formData.password}
+    onChange={handleInputChange}
+    className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
+    placeholder="Enter your password"
+    required
+  />
+</div>
+
           <div className="flex items-center space-x-4">
             <label className="block text-indigo-700 text-sm font-bold mb-2">
               Role
