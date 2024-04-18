@@ -1,26 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCalendarPlus,
+  faSignOutAlt,
+  faUserMd
+} from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import DoctorCard from "../../components/Patient/DoctorCard";
 import Breadcrumb from "../../components/Breadcrumb";
+import Footer from "../../components/Footer";
+import { AuthContext } from "../../Context/AuthContext";
 
 const PatientDashboard = () => {
   const [doctors, setDoctors] = useState([]);
   const [totalAppointments, setTotalAppointments] = useState(0);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const { logout } = useContext(AuthContext);
+
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/doctor/all", {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const response = await axios.get(
+          "https://doctor-appointment-hpp0.onrender.com/doctor/all",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        });
+        );
         if (response.data.doctors) {
-          setDoctors(response.data.doctors);
+          setDoctors(response.data.doctors.reverse());
         }
       } catch (error) {
         console.error("Error fetching doctors:", error);
@@ -32,7 +43,7 @@ const PatientDashboard = () => {
       try {
         if (patientId) {
           const response = await axios.get(
-            `http://localhost:8080/appointment/patient/${patientId}`,
+            `https://doctor-appointment-hpp0.onrender.com/appointment/patient/${patientId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`
@@ -53,20 +64,33 @@ const PatientDashboard = () => {
   }, [token]);
 
   const breadcrumbs = [{ title: "Home", link: "/patient-dashboard" }];
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <>
-      <header className="bg-blue-600 text-white py-4 fixed top-0 w-full z-10">
+      <header className="bg-blue-600 text-white py-4 fixed top-0 w-full z-10 flex justify-between items-center">
         <div className="container mx-auto text-center">
-          <h1 className="text-3xl font-semibold">Doctor Directory</h1>
+          <h1 className="text-3xl font-semibold">
+            <FontAwesomeIcon icon={faUserMd} className="mr-2 text-4xl" />
+            Doctor Directory
+          </h1>
         </div>
+        <button
+          className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-full focus:outline-none focus:shadow-outline-red active:bg-red-800 transform hover:scale-105 transition-transform duration-300 ease-in-out mr-4 flex"
+          onClick={handleLogout}
+        >
+          <FontAwesomeIcon icon={faSignOutAlt} className="mr-2 mt-1" />
+          <h1>Logout</h1>
+        </button>
       </header>
 
       <div className="container mx-auto max-w-screen-xl p-8 mt-12">
-        <div className="mt-18 text-right flex items-center justify-end space-x-2 relative">
-          {/* Round button with total appointments */}
+        <div className="mt-18 text-right flex items-center justify-end space-x-2 relative sm:mt-26 md:mt-26">
           <button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 transform hover:scale-105 transition-transform duration-300 ease-in-out"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 transform hover:scale-105 transition-transform duration-300 ease-in-out "
             onClick={() => {
               navigate("/myappointment");
             }}
@@ -87,6 +111,8 @@ const PatientDashboard = () => {
           ))}
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };

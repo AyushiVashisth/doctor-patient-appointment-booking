@@ -1,23 +1,28 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthContext } from "../Context/AuthContext";
 
 const Login = () => {
   const history = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "patient" // Default role
+    role: "patient"
   });
+  const { login } = useContext(AuthContext);
+  // console.log("login", login);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    // console.log("handleInputChange", name, value);
     setFormData({ ...formData, [name]: value });
   };
 
   const handleRoleChange = (e) => {
+    // console.log("Role change", e.target.value);
     setFormData({ ...formData, role: e.target.value });
   };
 
@@ -25,22 +30,25 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `http://localhost:8080/${formData.role}/login`,
+        `https://doctor-appointment-hpp0.onrender.com/${formData.role}/login`,
         formData
       );
 
       if (response.data.status) {
         toast.success("Login successful!");
-        console.log("UserId: " + response.data.userId, response.data);
+        // console.log("UserId: " + response.data.userId, response.data);
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userId", response.data.userId);
 
         if (formData.role === "patient") {
           history("/patient-dashboard");
+          login();
         } else if (formData.role === "doctor") {
           history("/doctor-dashboard");
+          login();
         } else if (formData.role === "admin") {
           history("/admin-dashboard");
+          login();
         }
       } else {
         toast.error("Login failed. Please check your credentials.");
@@ -60,34 +68,34 @@ const Login = () => {
           Login
         </h2>
         <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-  <label className="block text-indigo-700 text-sm font-bold mb-2">
-    Email<span className="text-red-500">*</span>
-  </label>
-  <input
-    type="email"
-    name="email"
-    value={formData.email}
-    onChange={handleInputChange}
-    className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
-    placeholder="Enter your email"
-    required
-  />
-</div>
-<div className="mb-4">
-  <label className="block text-indigo-700 text-sm font-bold mb-2">
-    Password<span className="text-red-500">*</span>
-  </label>
-  <input
-    type="password"
-    name="password"
-    value={formData.password}
-    onChange={handleInputChange}
-    className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
-    placeholder="Enter your password"
-    required
-  />
-</div>
+          <div className="mb-4">
+            <label className="block text-indigo-700 text-sm font-bold mb-2">
+              Email<span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-indigo-700 text-sm font-bold mb-2">
+              Password<span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              className="w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent border-b-4 border-indigo-600"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
           <div className="flex items-center space-x-4">
             <label className="block text-indigo-700 text-sm font-bold mb-2">
@@ -153,7 +161,7 @@ const Login = () => {
             </Link>
           </div>
         </form>
-        <ToastContainer position="bottom-right" />
+        {/* <ToastContainer position="bottom-right" /> */}
       </div>
     </div>
   );

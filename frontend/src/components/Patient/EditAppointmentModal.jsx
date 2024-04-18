@@ -23,7 +23,7 @@ const EditAppointmentModal = ({
     status: appointment.status,
     additionalInfo: appointment.additionalInfo
   });
-  console.log("edited appointment", editedData);
+  // console.log("edited appointment", editedData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,12 +63,11 @@ const EditAppointmentModal = ({
           <label className="block text-sm font-medium text-blue-700">
             Doctor
           </label>
-          {/* Display the doctor's name */}
           <input
             type="text"
             name="doctorFirstName"
             value={`${editedData.doctorFirstName} ${editedData.doctorLastName}`}
-            readOnly // Make the input field read-only
+            readOnly 
             className="mt-1 block w-full p-2 rounded-md shadow-sm focus:outline-none focus:border-indigo-700 border-b-4 border-blue-600"
           />
         </div>

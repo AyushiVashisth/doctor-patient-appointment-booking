@@ -11,6 +11,8 @@ import {
 import Modal from "react-modal";
 import axios from "axios";
 import AppointmentForm from "./AppointmentForm";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DoctorCard = ({ doctor }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,81 +32,75 @@ const DoctorCard = ({ doctor }) => {
     appointmentData.patient = patientId;
 
     axios
-      .post("http://localhost:8080/appointment/", appointmentData)
+      .post(
+        "https://doctor-appointment-hpp0.onrender.com/appointment/",
+        appointmentData
+      )
       .then((response) => {
-        console.log("Appointment created:", response.data);
-
-        updateDoctorAppointments(response.data.doctor, response.data._id);
-
-        updatePatientAppointments(response.data.patient, response.data._id);
-        console.log(
-          "Updated patient",
-          response.data.patient,
-          response.data._id,
-          response.data.doctor
-        );
-
+        toast.success("Appointment created successfully");
+        // updateDoctorAppointments(response.data.doctor, response.data._id);
+        // updatePatientAppointments(response.data.patient, response.data._id);
         closeModal();
       })
       .catch((error) => {
+        toast.error("Error creating appointment");
         console.error("Error creating appointment:", error);
       });
-
-    console.log("Appointment data:", appointmentData);
-    closeModal();
   };
 
-  const updateDoctorAppointments = (doctorId, appointmentId) => {
-    const token = localStorage.getItem("token");
-    console.log("Updating doctor appointments. Doctor ID:", doctorId, token);
+  // const updateDoctorAppointments = (doctorId, appointmentId) => {
+  //   const token = localStorage.getItem("token");
+  //   console.log("Updating doctor appointments. Doctor ID:", doctorId, token);
 
-    const requestBody = {
-      appointmentId: appointmentId,
-      role: "doctor"
-    };
+  //   const requestBody = {
+  //     appointmentId: appointmentId,
+  //     role: "doctor"
+  //   };
 
-    axios
-      .patch(
-        `http://localhost:8080/doctor/appoinment/${doctorId}`,
-        requestBody,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
-      .then((response) => {
-        console.log("Doctor's appointments updated:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error updating doctor's appointments:", error);
-      });
-  };
+  //   axios
+  //     .patch(
+  //       `https://doctor-appointment-hpp0.onrender.com/doctor/appointment/${doctorId}`,
+  //       requestBody,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       }
+  //     )
+  //     .then((response) => {
+  //       toast.success("Doctor's appointments updated successfully");
+  //     })
+  //     .catch((error) => {
+  //       toast.error("Error updating doctor's appointments");
+  //       console.error("Error updating doctor's appointments:", error);
+  //     });
+  // };
 
-  const updatePatientAppointments = (patientId, appointmentId) => {
-    const token = localStorage.getItem("token");
-    console.log("Updating patient appointments. Patient ID:", patientId, token);
-    const requestBody = {
-      appointmentId: appointmentId,
-      role: "doctor"
-    };
-    axios
-      .patch(
-        `http://localhost:8080/patient/appointment/${patientId}`,
-        requestBody,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
-      .then((response) => {
-        console.log("Patient's appointments updated:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error updating patient's appointments:", error);
-      });
-  };
+  // const updatePatientAppointments = (patientId, appointmentId) => {
+  //   const token = localStorage.getItem("token");
+  //   console.log("Updating patient appointments. Patient ID:", patientId, token);
+  //   const requestBody = {
+  //     appointmentId: appointmentId,
+  //     role: "doctor"
+  //   };
+  //   axios
+  //     .patch(
+  //       `https://doctor-appointment-hpp0.onrender.com/patient/appointment/${patientId}`,
+  //       requestBody,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       }
+  //     )
+  //     .then((response) => {
+  //       toast.success("Patient's appointments updated successfully");
+  //     })
+  //     .catch((error) => {
+  //       toast.error("Error updating patient's appointments");
+  //       console.error("Error updating patient's appointments:", error);
+  //     });
+  // };
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg mb-4">
@@ -112,7 +108,7 @@ const DoctorCard = ({ doctor }) => {
         <img
           src={doctor.profile}
           alt={`${doctor.firstName} ${doctor.lastName}`}
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full rounded-lg"
         />
         <div className="absolute bottom-0 left-0 p-2 bg-indigo-700 text-white rounded-tr-lg">
           <FontAwesomeIcon icon={faStethoscope} className="mr-2" />
@@ -148,7 +144,6 @@ const DoctorCard = ({ doctor }) => {
         </button>
       </div>
 
-      {/* Modal */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}

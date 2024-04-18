@@ -1,37 +1,24 @@
-// import { createContext, useState } from "react";
+import React, { createContext, useState } from "react";
 
-// export const AuthContext = createContext();
+export const AuthContext = createContext();
 
-// export default function AuthContextProvider({ children }) {
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
-//   const [token, setToken] = useState("");
+const AuthProvider = ({ children }) => {
+  const [isAuth, setisAuth] = useState(false);
+  const [Authdata, setAuthData] = useState();
 
-//   const toggleModal = () => {
-//     setIsLoggedIn(!isLoggedIn);
-//   };
+  const login = () => {
+    setisAuth(true);
+  };
 
-//   const openModal = () => {
-//     setIsLoggedIn(true);
-//   };
+  const logout = () => {
+    setisAuth(false);
+  };
 
-//   const closeModal = () => {
-//     setIsLoggedIn(false);
-//   };
+  return (
+    <AuthContext.Provider value={{ isAuth, login, logout, Authdata, setAuthData }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-//   return (
-//     <AuthContext.Provider
-//       value={{
-//         isOpen: isLoggedIn,
-//         onToggle: toggleModal,
-//         onOpen: openModal,
-//         onClose: closeModal,
-//         isLoggedIn,
-//         setIsLoggedIn,
-//         token,
-//         setToken,
-//       }}
-//     >
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// }
+export default AuthProvider;
