@@ -13,6 +13,7 @@ const Login = () => {
     role: "patient"
   });
   const { login } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
   // console.log("login", login);
 
   const handleInputChange = (e) => {
@@ -28,6 +29,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `https://doctor-appointment-hpp0.onrender.com/${formData.role}/login`,
@@ -58,6 +60,8 @@ const Login = () => {
       toast.error(
         "An error occurred while logging in. Please try again later."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,11 +153,11 @@ const Login = () => {
             <button
               type="submit"
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 mt-10 w-full transform hover:scale-105 transition-transform duration-300 ease-in-out"
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? "Please wait, logging in..." : "Login"}{" "}
             </button>
           </div>
-          {/* Add the Registration link below the Login button */}
           <div className="text-center mt-4">
             New user?
             <Link to="/" className="text-indigo-700 hover:underline">
@@ -161,7 +165,6 @@ const Login = () => {
             </Link>
           </div>
         </form>
-        {/* <ToastContainer position="bottom-right" /> */}
       </div>
     </div>
   );

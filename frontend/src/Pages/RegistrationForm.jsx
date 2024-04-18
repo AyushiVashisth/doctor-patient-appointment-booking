@@ -27,6 +27,7 @@ const RegistrationForm = () => {
     workingHours: "",
     about: ""
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRoleChange = (e) => {
     setRole(e.target.value);
@@ -49,6 +50,7 @@ const RegistrationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const response = await axios.post(
         role === "doctor"
@@ -68,6 +70,8 @@ const RegistrationForm = () => {
       toast.error(
         "An error occurred while registering. Please try again later."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -221,11 +225,11 @@ const RegistrationForm = () => {
             <button
               type="submit"
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 mt-10 w-full transform hover:scale-105 transition-transform duration-300 ease-in-out"
+              disabled={isLoading}
             >
-              Register as Patient
+              {isLoading ? "Registering..." : "Register as Patient"}{" "}
             </button>
           </div>
-          {/* "Already registered?" text with a "Login" link */}
           <div className="text-center mt-4">
             <span className="text-black">Already registered?</span>{" "}
             <Link to="/login" className="text-indigo-700 hover:underline">
@@ -251,7 +255,7 @@ const RegistrationForm = () => {
                 type: "text"
               },
               { label: "Contact Number", name: "contactNumber", type: "tel" },
-              { label: "Working Hours", name: "workingHours", type: "text"  }
+              { label: "Working Hours", name: "workingHours", type: "text" }
             ].map((field) => (
               <div key={field.name} className="mb-4">
                 <label className="block text-indigo-700 text-sm font-bold mb-2">
@@ -286,11 +290,11 @@ const RegistrationForm = () => {
             <button
               type="submit"
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline-indigo active:bg-indigo-800 mt-10 w-full transform hover:scale-105 transition-transform duration-300 ease-in-out"
+              disabled={isLoading}
             >
-              Register as Doctor
+              {isLoading ? "Registering..." : "Register as Doctor"}{" "}
             </button>
           </div>
-          {/* "Already registered?" text with a "Login" link */}
           <div className="text-center mt-4">
             <span className="text-black">Already registered?</span>{" "}
             <Link to="/login" className="text-indigo-700 font-bold">
